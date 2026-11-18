@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f766e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="WEP">
+<title>WEP — Le site du week-end</title>
+<link rel="manifest" href='data:application/manifest+json,{"name":"WEP - Le site du week-end","short_name":"WEP","start_url":".","display":"standalone","background_color":"%23f0fdfa","theme_color":"%230f766e","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Crect width=%27100%27 height=%27100%27 rx=%2722%27 fill=%27%230f766e%27/%3E%3Ctext x=%2750%27 y=%2768%27 font-size=%2750%27 text-anchor=%27middle%27%3E%F0%9F%8F%80%3C/text%3E%3C/svg%3E","sizes":"any","type":"image/svg+xml","purpose":"any"}]}'>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#f0fdfa;color:#1e293b;padding-bottom:2rem}
+header{background:#0f766e;color:#fff;padding:1.25rem 1rem .9rem;border-radius:0 0 1.5rem 1.5rem}
+header h1{font-size:1.25rem}
+header .sub{color:#99f6e4;font-size:.8rem}
+.hd{max-width:640px;margin:0 auto;overflow:hidden}
+.j{float:right;text-align:right}
+.j b{font-size:1.5rem}
+.j span{display:block;color:#99f6e4;font-size:.7rem}
+.bar{max-width:640px;margin:.7rem auto 0;font-size:.75rem;color:#ccfbf1;display:flex;justify-content:space-between}
+.track{height:10px;background:rgba(255,255,255,.25);border-radius:99px;overflow:hidden;margin-top:4px}
+.fill{height:100%;background:#fbbf24;border-radius:99px;transition:width .4s}
+nav{max-width:640px;margin:1rem auto 0;padding:0 1rem;display:flex;gap:.4rem;flex-wrap:wrap}
+nav button{border:1px solid #e2e8f0;background:#fff;color:#475569;padding:.4rem .85rem;border-radius:99px;font-size:.85rem;cursor:pointer}
+nav button.on{background:#0f766e;color:#fff;border-color:#0f766e}
+main{max-width:640px;margin:0 auto;padding:1rem;display:grid;gap:.7rem}
+.card{background:#fff;border:1px solid #f1f5f9;border-radius:1rem;padding:1rem;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.card h3{font-size:.95rem;margin-bottom:.6rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap}
+.hint{font-size:.75rem;color:#64748b;padding:0 .25rem}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+th{font-size:.65rem;text-transform:uppercase;color:#94a3b8;text-align:left;padding:.3rem 0}
+td{border-top:1px solid #f1f5f9;padding:.45rem 0;vertical-align:middle}
+select,input,textarea{font-size:.85rem;border:1px solid #e2e8f0;background:#f8fafc;border-radius:.5rem;padding:.4rem .5rem;font-family:inherit;max-width:130px}
+input[type=checkbox]{max-width:none}
+input[type=text],input[type=date],input[type=number]{max-width:220px}
+textarea{width:100%;max-width:none;min-height:60px;resize:vertical}
+.chip{display:inline-block;font-size:.7rem;font-weight:600;padding:.15rem .5rem;border-radius:99px;white-space:nowrap;cursor:pointer;border:1px solid transparent}
+.chip.on{border-color:#0f766e;background:#ccfbf1;color:#0f766e}
+.chip.off{border-color:#e2e8f0;background:#fff;color:#64748b}
+.add{width:100%;padding:.65rem;border:2px dashed #5eead4;background:none;color:#0f766e;border-radius:.75rem;font-size:.85rem;cursor:pointer;font-weight:600}
+.btn{background:#0f766e;color:#fff;border:none;padding:.35rem .7rem;border-radius:.5rem;font-size:.75rem;cursor:pointer}
+.btn.y{background:#f59e0b}
+.del{background:none;border:none;color:#cbd5e1;cursor:pointer;font-size:.85rem}
+.del:hover{color:#ef4444}
+.score{display:flex;align-items:center;gap:.5rem}
+.score button{width:2rem;height:2rem;border-radius:.5rem;border:1px solid #e2e8f0;background:#f0fdfa;font-size:1.1rem;cursor:pointer;color:#0f766e;font-weight:700}
+.score b{font-size:1.2rem;min-width:1.6rem;text-align:center}
+.match{border:1px solid #e2e8f0;border-radius:.75rem;padding:.7rem;margin-top:.6rem;background:#fff}
+.match h4{font-size:.85rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap}
+.status{font-size:.65rem;font-weight:700;text-transform:uppercase;padding:.15rem .5rem;border-radius:99px;cursor:pointer}
+.status.todo{background:#f1f5f9;color:#64748b}
+.status.live{background:#fee2e2;color:#b91c1c}
+.status.done{background:#d1fae5;color:#047857}
+.small{font-size:.7rem;color:#94a3b8;margin-top:.5rem}
+.team{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.5rem}
+.dot{width:1rem;height:1rem;border-radius:99px;display:inline-block;flex:none}
+label{display:block;font-size:.85rem;font-weight:600;margin:.8rem 0 .2rem}
+.wepien{border:1px solid #ccfbf1;border-radius:.75rem;padding:.7rem;margin-top:.6rem;background:#f0fdfa}
+.post{border-left:3px solid #0f766e;padding-left:.7rem;margin-top:.7rem}
+.post .meta{font-size:.7rem;color:#94a3b8}
+.post .com{font-size:.78rem;color:#475569;margin-top:.4rem;padding-left:.6rem;border-left:2px solid #e2e8f0}
+.row{display:flex;gap:.4rem;flex-wrap:wrap;align-items:center;margin-top:.4rem}
+.row input,.row select{max-width:none;flex:1;min-width:110px}
+</style>
+</head>
+<body>
+<header>
+  <div class="hd">
+    <div class="j" id="countdown"></div>
+    <h1>🏀 WEP — Le site du week-end</h1>
+    <div class="sub">Actus · WEPiens · Live · Archives</div>
+  </div>
+  <div class="bar">
+    <span id="barL"></span><span id="barR"></span>
+  </div>
+  <div class="track"><div class="fill" id="fill"></div></div>
+</header>
+<nav id="tabs"></nav>
+<main id="main"></main>
+<script>
+/* ====== WEP — Le site du week-end ======
+   PWA autonome, zéro dépendance, fichier unique.
+   Sections v1 : Accueil · Les WEPiens · Le live · Les archives · Le fil · Réglages.
+   Données : stockage local (clé wep-v1) + sauvegarde/restauration JSON (Réglages).
+   Le fichier importé depuis WEP Primes (export des fiches) est accepté tel quel.
+   Format réutilisable : { wepDate, place, members[{id,name,nick,birth,editions}],
+     teams[{id,name,color,playerIds}], matches[{id,discipline,teamA,teamB,scoreA,scoreB,status}],
+     editions[{id,year,place,start,end,note}], events[{id,date,label}],
+     news[{id,author,date,text,comments:[{author,date,text}]}] } */
+
+const KEY = "wep-v1";
+const COLORS = ["#ef4444","#3b82f6","#f59e0b","#10b981","#8b5cf6","#ec4899","#64748b","#000000"];
+const DISCIPLINES = ["Basket","Foot","Volley","Badminton","Tennis de table","Ultimate","Course","Pétanque","Autre"];
+
+const defaultState = () => ({
+  wepDate:"", place:"",
+  members:[
+    {id:"m1",name:"Jean-Baptiste",nick:"JB",birth:"",editions:[]},
+  ],
+  teams:[
+    {id:"t1",name:"Les Bleus",color:COLORS[1],playerIds:["m1"]},
+    {id:"t2",name:"Les Jaunes",color:COLORS[2],playerIds:[]},
+  ],
+  matches:[],
+  editions:[],
+  events:[],
+  news:[],
+});
+
+let state, tab="accueil";
+try{
+  const raw = JSON.parse(localStorage.getItem(KEY));
+  state = raw && raw.members ? Object.assign(defaultState(), raw) : defaultState();
+}catch(e){ state = defaultState(); }
+const save = () => { try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){} };
+const uid = p => p + Date.now() + Math.floor(Math.random()*99);
+const DAY = 864e5;
+const today = () => new Date().toISOString().slice(0,10);
+function fmt(dstr){ if(!dstr) return "date ?"; const d=new Date(dstr); return d.toLocaleDateString("fr-FR",{day:"2-digit",month:"2-digit",year:"numeric"}); }
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+const memberOf = id => state.members.find(m=>m.id===id);
+const teamOf = id => state.teams.find(t=>t.id===id);
+
+/* ===== Actions ===== */
+function set(k,v){ state[k]=v; save(); render(); }
+function addMember(){
+  const name=prompt("Prénom du WEPien ?"); if(!name) return;
+  state.members.push({id:uid("m"),name,nick:"",birth:"",editions:[]});
+  save(); render();
+}
+function setMember(mid,k,v){ state.members.forEach(m=>{ if(m.id===mid) m[k]=v; }); save(); render(); }
+function removeMember(id){
+  state.members=state.members.filter(m=>m.id!==id);
+  state.teams.forEach(t=>t.playerIds=t.playerIds.filter(p=>p!==id));
+  save(); render();
+}
+function addTeam(){
+  const name=prompt("Nom de l'équipe ?"); if(!name) return;
+  state.teams.push({id:uid("t"),name,color:COLORS[state.teams.length%COLORS.length],playerIds:[]});
+  save(); render();
+}
+function setTeam(tid,k,v){ state.teams.forEach(t=>{ if(t.id===tid) t[k]=v; }); save(); render(); }
+function togglePlayer(tid,mid){
+  state.teams.forEach(t=>{ if(t.id!==tid) return;
+    t.playerIds = t.playerIds.includes(mid) ? t.playerIds.filter(p=>p!==mid) : [...t.playerIds,mid];
+  });
+  save(); render();
+}
+function removeTeam(id){ state.teams=state.teams.filter(t=>t.id!==id); save(); render(); }
+function addMatch(){
+  const discipline=document.getElementById("newMatchD").value;
+  const teamA=document.getElementById("newMatchA").value;
+  const teamB=document.getElementById("newMatchB").value;
+  if(!teamA||!teamB||teamA===teamB) return alert("Choisis deux équipes différentes.");
+  state.matches.push({id:uid("x"),discipline,teamA,teamB,scoreA:0,scoreB:0,status:"todo"});
+  save(); render();
+}
+function score(mid,side,d){
+  state.matches.forEach(m=>{ if(m.id!==mid) return;
+    m["score"+side]=Math.max(0,m["score"+side]+d);
+  });
+  save(); render();
+}
+function cycleStatus(mid){
+  state.matches.forEach(m=>{ if(m.id!==mid) return;
+    m.status = m.status==="todo"?"live":m.status==="live"?"done":"todo";
+  });
+  save(); render();
+}
+function removeMatch(id){ state.matches=state.matches.filter(m=>m.id!==id); save(); render(); }
+function addEdition(){
+  const year=prompt("Année de l'édition ?"); if(!year) return;
+  state.editions.push({id:uid("e"),year,place:"",start:"",end:"",note:""});
+  save(); render();
+}
+function setEdition(eid,k,v){ state.editions.forEach(e=>{ if(e.id===eid) e[k]=v; }); save(); render(); }
+function removeEdition(id){ state.editions=state.editions.filter(e=>e.id!==id); save(); render(); }
+function addEvent(){
+  const date=document.getElementById("newEventDate").value;
+  const label=document.getElementById("newEventLabel").value;
+  if(!date||!label) return alert("Date et libellé du rendez-vous.");
+  state.events.push({id:uid("v"),date,label}); state.events.sort((a,b)=>a.date<b.date?-1:1);
+  save(); render();
+}
+function removeEvent(id){ state.events=state.events.filter(e=>e.id!==id); save(); render(); }
+function addPost(){
+  const author=document.getElementById("newPostA").value;
+  const text=document.getElementById("newPostT").value;
+  if(!text) return alert("Écris quelque chose d'abord 🙂");
+  state.news.unshift({id:uid("n"),author:author||"Anonyme",date:today(),text,comments:[]});
+  save(); render();
+}
+function addComment(nid){
+  const inp=document.getElementById("com_"+nid);
+  const text=inp.value; if(!text) return;
+  state.news.forEach(n=>{ if(n.id===nid) n.comments.push({author:"WEPien",date:today(),text}); });
+  save(); render();
+}
+function removePost(id){ state.news=state.news.filter(n=>n.id!==id); save(); render(); }
+function exportFile(){
+  try{
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:"application/json"}));
+    a.download="wep-"+today()+".json";
+    document.body.appendChild(a); a.click(); a.remove();
+  }catch(e){ alert("Export impossible : "+e.message); }
+}
+function importFile(input){
+  const f=input.files&&input.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const d=JSON.parse(r.result);
+      if(d.members&&!d.matches){ /* export WEP Primes : on récupère les fiches */
+        d.members.forEach(m=>{ m.editions=[]; delete m.accounts; });
+        state=Object.assign(defaultState(),{members:d.members});
+      } else if(d.members){ state=Object.assign(defaultState(),d); }
+      else return alert("Fichier invalide : pas de liste de membres.");
+      save(); render(); alert("Données importées ✅");
+    }catch(e){ alert("Fichier illisible : "+e.message); }
+  };
+  r.readAsText(f);
+}
+
+/* ===== Classement ===== */
+function standings(){
+  const rows={};
+  state.teams.forEach(t=>rows[t.id]={id:t.id,name:t.name,color:t.color,j:0,v:0,d:0,plus:0,moins:0});
+  state.matches.filter(m=>m.status==="done").forEach(m=>{
+    const A=rows[m.teamA],B=rows[m.teamB]; if(!A||!B) return;
+    A.j++;B.j++;A.plus+=m.scoreA;A.moins+=m.scoreB;B.plus+=m.scoreB;B.moins+=m.scoreA;
+    if(m.scoreA>m.scoreB)A.v++,B.d++; else if(m.scoreA<m.scoreB)B.v++,A.d++;
+  });
+  return Object.values(rows).sort((a,b)=>(b.v-a.v)||(b.plus-b.moins)-(a.plus-a.moins));
+}
+
+/* ===== Rendu ===== */
+function render(){
+  const done=state.matches.filter(m=>m.status==="done").length;
+  const total=state.matches.length;
+  document.getElementById("barL").textContent="Matchs : "+done+"/"+total+" terminés";
+  document.getElementById("barR").textContent=state.place?esc(state.place):"";
+  document.getElementById("fill").style.width=(total?Math.round(done/total*100):0)+"%";
+  const cd=document.getElementById("countdown");
+  if(state.wepDate){ const d=Math.ceil((new Date(state.wepDate)-Date.now())/DAY);
+    cd.innerHTML=d>0?"<b>J-"+d+"</b><span>avant le WEP</span>":"<b>C'est le WEP !</b><span>🎉</span>";
+  } else cd.innerHTML="";
+
+  const tabs=[["accueil","Accueil"],["wepiens","Les WEPiens"],["live","Le live"],["archives","Les archives"],["fil","Le fil"],["reglages","Réglages"]];
+  document.getElementById("tabs").innerHTML=tabs.map(([id,l])=>
+    "<button class='"+(tab===id?"on":"")+"' onclick='WepApp.setTab(&quot;"+id+"&quot;)'>"+l+"</button>").join("");
+
+  const M=document.getElementById("main"); let h="";
+  if(tab==="accueil"){
+    h+="<div class='card'><h3>📌 Prochains rendez-vous</h3>";
+    if(state.wepDate) h+="<p class='hint' style='margin:0 0 .5rem'><span style='font-size:1rem'>🎯 Le prochain WEP : <b>"+fmt(state.wepDate)+"</b>"+(state.place?" à "+esc(state.place):"")+"</span></p>";
+    state.events.forEach(ev=>{
+      h+="<div class='row'><span style='flex:1'>"+esc(ev.label)+" <span class='small'>("+fmt(ev.date)+")</span></span><button class='del' onclick='WepApp.removeEvent(&quot;"+ev.id+"&quot;)'>✕</button></div>";
+    });
+    h+="<div class='row'><input type='date' id='newEventDate'><input type='text' placeholder='Repas, match amical…' id='newEventLabel'><button class='btn' onclick='WepApp.addEvent()'>+ Ajouter</button></div></div>";
+    const last=state.news.slice(0,3);
+    h+="<div class='card'><h3>📣 Dernières nouvelles</h3>";
+    if(!last.length) h+="<p class='small' style='margin:0'>Rien pour l'instant. Publie dans Le fil !</p>";
+    last.forEach(n=>{ h+="<div class='post'><b>"+esc(n.author)+"</b> <span class='meta'>"+fmt(n.date)+"</span><p>"+esc(n.text)+"</p></div>"; });
+    h+="<p class='small'>Tout le fil dans l'onglet « Le fil ».</p></div>";
+    h+="<div class='card'><h3>ℹ️ Bon à savoir</h3><p class='small' style='margin:0'>Appli installable (Réglages) · données locales sur ton téléphone · sauvegarde fichier dans Réglages. Les scores en direct sont dans « Le live » pendant le week-end.</p></div>";
+  }
+  if(tab==="wepiens"){
+    h+="<p class='hint'>Les fiches des participants. Astuce : importe ton fichier de sauvegarde WEP Primes dans Réglages, les fiches se remplissent toutes seules.</p>";
+    state.members.forEach(m=>{
+      h+="<div class='wepien'><div class='row' style='margin:0 0 .4rem'><b style='flex:1'>"+esc(m.name)+(m.nick?" "+esc(m.nick):"")+"</b>"+(m.birth?" <span class='small'>🎂 "+fmt(m.birth)+"</span>":"")+" <span class='small'>"+(m.editions&&m.editions.length?m.editions.length:"0")+" édition(s)</span><button class='del' onclick='WepApp.removeMember(&quot;"+m.id+"&quot;)'>✕</button></div>";
+      h+="<div class='row'><input type='text' placeholder='Prénom' value='"+esc(m.name)+"' onchange='WepApp.setMember(&quot;"+m.id+"&quot;,&quot;name&quot;,this.value)'><input type='text' placeholder='Surnom' value='"+esc(m.nick||"")+"' onchange='WepApp.setMember(&quot;"+m.id+"&quot;,&quot;nick&quot;,this.value)'><input type='date' title='Naissance' value='"+esc(m.birth||"")+"' onchange='WepApp.setMember(&quot;"+m.id+"&quot;,&quot;birth&quot;,this.value)' style='max-width:none'></div>";
+      h+="</div>";
+    });
+    h+="<button class='add' onclick='WepApp.addMember()'>+ Ajouter un WEPien</button>";
+  }
+  if(tab==="live"){
+    h+="<div class='card'><h3>👥 Équipes</h3>";
+    state.teams.forEach(t=>{
+      h+="<div class='match'><div class='team'><input type='text' value='"+esc(t.name)+"' onchange='WepApp.setTeam(&quot;"+t.id+"&quot;,&quot;name&quot;,this.value)' style='flex:1;min-width:110px;font-weight:600'>";
+      COLORS.forEach(c=>{ h+="<span class='dot' style='background:"+c+";outline:"+(t.color===c?"2px solid #0f766e":"none")+";cursor:pointer' onclick='WepApp.setTeam(&quot;"+t.id+"&quot;,&quot;color&quot;,&quot;"+c+"&quot;)'></span>"; });
+      h+="<button class='del' onclick='WepApp.removeTeam(&quot;"+t.id+"&quot;)'>✕</button></div>";
+      h+="<div>";
+      state.members.forEach(m=>{
+        const on=t.playerIds.includes(m.id);
+        h+="<span class='chip "+(on?"on":"off")+"' onclick='WepApp.togglePlayer(&quot;"+t.id+"&quot;,&quot;"+m.id+"&quot;)'>"+esc(m.name)+"</span> ";
+      });
+      h+="</div></div>";
+    });
+    h+="<button class='add' onclick='WepApp.addTeam()'>+ Ajouter une équipe</button></div>";
+    h+="<div class='card'><h3>📅 Créer un match</h3><div class='row'>";
+    h+="<select id='newMatchD'>"+DISCIPLINES.map(d=>"<option>"+d+"</option>").join("")+"</select>";
+    h+="<select id='newMatchA'>"+state.teams.map(t=>"<option value='"+t.id+"'>"+esc(t.name)+"</option>").join("")+"</select>";
+    h+="<select id='newMatchB'>"+state.teams.map((t,i)=>"<option value='"+t.id+"' "+(i===1?"selected":"")+">"+esc(t.name)+"</option>").join("")+"</select>";
+    h+="<button class='btn' onclick='WepApp.addMatch()'>+ Match</button></div></div>";
+    state.matches.forEach(m=>{
+      const A=teamOf(m.teamA),B=teamOf(m.teamB); if(!A||!B) return;
+      const lbl={todo:"à venir",live:"en cours",done:"terminé"};
+      h+="<div class='match'><h4>"+esc(m.discipline)+"<span class='status "+m.status+"' onclick='WepApp.cycleStatus(&quot;"+m.id+"&quot;)'>"+lbl[m.status]+"</span><button class='del' onclick='WepApp.removeMatch(&quot;"+m.id+"&quot;)'>✕</button></h4>";
+      h+="<div class='row'><span style='flex:1'><span class='dot' style='background:"+A.color+"'></span> "+esc(A.name)+"</span><div class='score'><button onclick='WepApp.score(&quot;"+m.id+"&quot;,&quot;A&quot;,-1)'>−</button><b>"+m.scoreA+"</b><button onclick='WepApp.score(&quot;"+m.id+"&quot;,&quot;A&quot;,1)'>+</button></div></div>";
+      h+="<div class='row'><span style='flex:1'><span class='dot' style='background:"+B.color+"'></span> "+esc(B.name)+"</span><div class='score'><button onclick='WepApp.score(&quot;"+m.id+"&quot;,&quot;B&quot;,-1)'>−</button><b>"+m.scoreB+"</b><button onclick='WepApp.score(&quot;"+m.id+"&quot;,&quot;B&quot;,1)'>+</button></div></div>";
+      h+="</div>";
+    });
+    const st=standings();
+    h+="<div class='card'><h3>🏆 Classement</h3><table><tr><th>#</th><th>Équipe</th><th>J</th><th>V</th><th>D</th><th>Diff</th></tr>";
+    st.forEach((r,i)=>{
+      h+="<tr><td>"+(i+1)+"</td><td><span class='dot' style='background:"+r.color+"'></span> <b>"+esc(r.name)+"</b></td><td>"+r.j+"</td><td>"+r.v+"</td><td>"+r.d+"</td><td>"+(r.plus-r.moins)+"</td></tr>";
+    });
+    h+="</table><p class='small'>Classement calculé sur les matchs terminés. Chaque victoire compte pareil, quelle que soit la discipline.</p></div>";
+  }
+  if(tab==="archives"){
+    h+="<p class='hint'>Une carte par édition passée : lieu, dates, anecdotes, vainqueur…</p>";
+    state.editions.forEach(e=>{
+      h+="<div class='card'><h3>WEP "+esc(e.year)+(e.place?" — "+esc(e.place):"")+"<button class='del' onclick='WepApp.removeEdition(&quot;"+e.id+"&quot;)'>✕</button></h3>";
+      h+="<div class='row'><input type='text' placeholder='Lieu' value='"+esc(e.place)+"' onchange='WepApp.setEdition(&quot;"+e.id+"&quot;,&quot;place&quot;,this.value)'><input type='date' value='"+esc(e.start)+"' onchange='WepApp.setEdition(&quot;"+e.id+"&quot;,&quot;start&quot;,this.value)'><input type='date' value='"+esc(e.end)+"' onchange='WepApp.setEdition(&quot;"+e.id+"&quot;,&quot;end&quot;,this.value)'></div>";
+      h+="<textarea placeholder='Anecdotes, vainqueur, souvenirs…' onchange='WepApp.setEdition(&quot;"+e.id+"&quot;,&quot;note&quot;,this.value)'>"+esc(e.note||"")+"</textarea>";
+      h+="</div>";
+    });
+    h+="<button class='add' onclick='WepApp.addEdition()'>+ Ajouter une édition</button>";
+  }
+  if(tab==="fil"){
+    h+="<div class='card'><h3>✍️ Publier</h3>";
+    h+="<div class='row'><input type='text' placeholder='Ton nom' id='newPostA' list='membersList'><datalist id='membersList'>"+state.members.map(m=>"<option value='"+esc(m.name)+"'>").join("")+"</datalist><input type='text' placeholder='Un souvenir, une annonce…' id='newPostT'><button class='btn' onclick='WepApp.addPost()'>Publier</button></div></div>";
+    state.news.forEach(n=>{
+      h+="<div class='card'><h3>"+esc(n.author)+" <span class='small'>"+fmt(n.date)+"</span><button class='del' onclick='WepApp.removePost(&quot;"+n.id+"&quot;)'>✕</button></h3><p style='white-space:pre-wrap'>"+esc(n.text)+"</p>";
+      n.comments.forEach(c=>{ h+="<div class='com'><b>"+esc(c.author)+"</b> : "+esc(c.text)+"</div>"; });
+      h+="<div class='row'><input type='text' placeholder='Commenter…' id='com_"+n.id+"'><button class='btn' onclick='WepApp.addComment(&quot;"+n.id+"&quot;)'>Répondre</button></div></div>";
+    });
+    if(!state.news.length) h+="<p class='hint'>Aucune publication. La première est pour toi !</p>";
+  }
+  if(tab==="reglages"){
+    h+="<div class='card'>"
+      +"<label>Date du prochain WEP</label><input type='date' value='"+esc(state.wepDate)+"' onchange='WepApp.set(&quot;wepDate&quot;,this.value)'>"
+      +"<label>Lieu du prochain WEP</label><input type='text' value='"+esc(state.place)+"' onchange='WepApp.set(&quot;place&quot;,this.value)' style='width:100%;max-width:none'>"
+      +"</div>";
+    h+="<div class='card'><h3>Sauvegarde / restauration</h3>"
+      +"<p class='small'>« Sauvegarder » télécharge toutes les données (WEPiens, équipes, matchs, archives, fil) en JSON. « Restaurer » recharge un fichier… y compris un export de l'appli WEP Primes : seules les fiches des gars seront reprises.</p>"
+      +"<div class='row'><button class='btn' onclick='WepApp.exportFile()'>⬇ Sauvegarder</button>"
+      +"<label class='btn' style='cursor:pointer'>⬆ Restaurer<input type='file' accept='.json,application/json' style='display:none' onchange='WepApp.importFile(this)'></label></div></div>";
+    h+="<div class='card'><h3>Installer l'appli</h3><p class='small' style='margin:0'><b>Android/Chrome :</b> menu ⋮ → « Ajouter à l'écran d'accueil ».<br><b>iPhone/Safari :</b> Partager → « Sur l'écran d'accueil ».</p></div>";
+    h+="<div class='card'><h3>⏳ En attendant la v2</h3><p class='small' style='margin:0'>v1 : chaque téléphone garde ses données localement. La sync groupe et les comptes organisateurs arrivent en v2.</p></div>";
+  }
+  M.innerHTML=h;
+}
+
+/* API publique */
+const WepApp = {
+  setTab(t){ tab=t; render(); },
+  get(){ return state; },
+  set, addMember, setMember, removeMember,
+  addTeam, setTeam, togglePlayer, removeTeam,
+  addMatch, score, cycleStatus, removeMatch,
+  addEdition, setEdition, removeEdition,
+  addEvent, removeEvent,
+  addPost, addComment, removePost,
+  exportFile, importFile,
+  reset(){ if(confirm("Tout réinitialiser ?")){ state=defaultState(); save(); render(); } },
+};
+window.WepApp = WepApp;
+if (typeof module !== "undefined") module.exports = WepApp;
+
+render();
+</script>
+</body>
+</html>
