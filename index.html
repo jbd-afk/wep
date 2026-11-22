@@ -324,18 +324,9 @@ function vMembers(){
  h+='</div>';return h;
 }
 var editId=null,editImg=null;
-function editPerson(id){var p=pe(id);if(!p)return;
- editId=id;editImg=p.img||null;
- document.getElementById('mfn').value=p.fn;
- document.getElementById('mmln').value=p.ln;
- document.getElementById('mal').value=p.al;
- document.getElementById('mbd').value=p.bd||'';
- render();}
-function cancelEdit(){editId=null;editImg=null;
- document.getElementById('mfn').value='';document.getElementById('mmln').value='';
- document.getElementById('mal').value='';document.getElementById('mbd').value='';
- document.getElementById('mimgf').value='';
- render();}
+function editPerson(id){var p=pe(id);if(!p)return;editId=id;editImg=p.img||null;render();
+ window.scrollTo({top:0,behavior:'smooth'});}
+function cancelEdit(){editId=null;editImg=null;var mf=document.getElementById('mimgf');if(mf)mf.value='';render();}
 function personPick(input){var f=input.files[0];if(!f)return;var r=new FileReader();
  r.onload=function(){var img=new Image();img.onload=function(){var c=document.createElement('canvas');var s=Math.min(1,300/img.width);
   c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);
@@ -492,7 +483,10 @@ function render(){var app=document.getElementById('app');if(!app)return;syncBadg
  var lb2=document.getElementById('logoBtn');if(lb2)lb2.style.display=orga?'':'none';
  if(tab==='membres'&&orga){var abtn=document.getElementById('maddbtn'),acbtn=document.getElementById('mcancelbtn');
   if(abtn)abtn.textContent=editId?'Enregistrer':'Ajouter';
-  if(acbtn)acbtn.style.display=editId?'':'none';}
+  if(acbtn)acbtn.style.display=editId?'':'none';
+  if(editId){var ep=pe(editId);
+   if(ep){document.getElementById('mfn').value=ep.fn;document.getElementById('mmln').value=ep.ln;
+    document.getElementById('mal').value=ep.al||'';document.getElementById('mbd').value=ep.bd||'';}}}
  if(tab==='scoreboard'){fillScoreLive();fillScoreStatics();}
 }
 function delPerson(id){if(!confirm('Supprimer ce WEPien ? Il sera retire des equipes et des matchs.'))return;
