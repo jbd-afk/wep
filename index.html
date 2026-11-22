@@ -362,16 +362,44 @@ function vArch(){
   if(orga){h+='<div class="row" style="margin-top:10px"><button class="b" onclick="snapshotEdition()">Archiver cette edition (equipes + classement du moment)</button></div>';}
  }else{
   var e=null;S.past.forEach(function(x){if(x.yr===ed)e=x;});
-  h+='<div class="card"><div class="h">EDITION '+e.yr+'</div><div style="font-size:13px;padding:2px 0"><b>Dates :</b> '+esc(e.dt)+'</div><div style="font-size:13px;padding:2px 0"><b>Lieu :</b> '+esc(e.pl)+'</div>';
-  h+='<div style="font-size:13px;padding:2px 0"><b>Presences :</b> '+esc(e.pr.map(function(i){var p=pe(i);return p?pal(p):'?';}).join(', '))+'</div>';
+  h+='<div class="card"><div class="h">EDITION '+e.yr+'</div>';
+  if(orga){h+='<div class="row"><input id="edyr" style="width:70px;font-size:12px" value="'+esc(e.yr)+'" onchange="setEdYr(this.value)" title="Annee"><input id="eddt" style="flex:1;font-size:12px" value="'+esc(e.dt)+'" placeholder="Dates" onchange="setEd(\'dt\',this.value)"><input id="edpl" style="flex:1;font-size:12px" value="'+esc(e.pl)+'" placeholder="Lieu" onchange="setEd(\'pl\',this.value)"></div>';}
+  else{h+='<div style="font-size:13px;padding:2px 0"><b>Dates :</b> '+esc(e.dt)+'</div><div style="font-size:13px;padding:2px 0"><b>Lieu :</b> '+esc(e.pl)+'</div>';}
+  h+='<div style="font-size:13px;padding:4px 0 2px"><b>Presences ('+e.pr.length+') :</b></div>';
+  if(orga){h+='<div class="row">';
+   S.people.forEach(function(pp){var on=e.pr.indexOf(pp.id)>=0;
+    h+='<button class="o" style="font-size:10px;border-radius:999px;padding:2px 7px'+(on?';background:var(--dark);color:#fff;border-color:var(--dark)':'')+'" onclick="togPr('+pp.id+')" title="'+esc(pp.fn+' '+pp.ln)+'">'+esc(pal(pp))+'</button>';});
+   h+='<span style="font-size:10px;color:#94a3b8;align-self:center">clic = present / absent</span></div>';}
+  else{h+='<div style="font-size:13px">'+esc(e.pr.map(function(i){var p=pe(i);return p?pal(p):'?';}).join(', '))+'</div>';}
   h+='<div class="h" style="margin-top:12px">EQUIPES (composition conservee)</div>';
-  e.tm.forEach(function(t){h+='<div class="row" style="justify-content:space-between;font-size:13px;padding:3px 0"><span class="team"><span class="dot" style="background:'+t.co+'"></span>'+esc(t.nm)+'</span><span style="color:#64748b;font-size:12px">'+esc(t.mb.map(function(i){var p=pe(i);return p?pal(p):'?';}).join(', '))+'</span></div>';});
-  h+='<div class="h" style="margin-top:12px">RESULTATS</div>';
-  if(orga&&e.pr&&e.pr.length===0){h+='<div style="font-size:11px;color:#b91c1c;margin-bottom:4px">Edition sans donnees : modifie-la ou supprime-la.</div>';}
-  e.rs.forEach(function(r,i){h+='<div class="row" style="justify-content:space-between;font-size:13px;padding:3px 0">'+(i+1)+'. <b>'+esc(r.t)+'</b><span style="color:#94a3b8;font-size:11px">'+r.w+'V-'+r.l+'D</span><b>'+r.p+' pts</b></div>';});
+  if(orga){e.tm.forEach(function(t,ti){
+    h+='<div class="card" style="margin:0 0 6px;padding:10px"><div class="row"><span class="dot" style="background:'+t.co+'"></span><input style="flex:1;font-size:12px" value="'+esc(t.nm)+'" onchange="tmUpd('+ti+',this.value)"><button class="o" style="color:#b91c1c;font-size:11px" onclick="tmDel('+ti+')">Supprimer l\'equipe</button></div><div class="row" style="margin-top:6px">';
+    S.people.forEach(function(pp){var on=t.mb.indexOf(pp.id)>=0;
+     h+='<button class="o" style="font-size:9px;border-radius:999px;padding:2px 6px'+(on?';background:'+t.co+';color:#fff;border-color:'+t.co:'')+'" onclick="togTm('+ti+','+pp.id+')" title="'+esc(pp.fn+' '+pp.ln)+'">'+esc(pal(pp))+'</button>';});
+    h+='</div></div>';});
+   h+='<button class="o" style="font-size:11px" onclick="tmAdd()">+ Ajouter une equipe</button>';}
+  else{e.tm.forEach(function(t){h+='<div class="row" style="justify-content:space-between;font-size:13px;padding:3px 0"><span class="team"><span class="dot" style="background:'+t.co+'"></span>'+esc(t.nm)+'</span><span style="color:#64748b;font-size:12px">'+esc(t.mb.map(function(i){var p=pe(i);return p?pal(p):'?';}).join(', '))+'</span></div>';});}
+  h+='<div class="h" style="margin-top:12px">MATCHS JOUES</div>';
+  e.ms=e.ms||[];
+  if(e.ms.length){
+   if(orga){e.ms.forEach(function(m,mi){
+     h+='<div class="row" style="border-bottom:1px solid var(--line);padding:4px 0"><input style="width:120px;font-size:12px" value="'+esc(m.di)+'" placeholder="Discipline" onchange="msUpd('+mi+',\'di\',this.value)"><input style="width:110px;font-size:12px" value="'+esc(m.ta)+'" onchange="msUpd('+mi+',\'ta\',this.value)"><input type="number" style="width:46px;font-size:12px" value="'+(m.sa||0)+'" onchange="msUpd('+mi+',\'sa\',+this.value)"> <b style="align-self:center">-</b> <input type="number" style="width:46px;font-size:12px" value="'+(m.sb||0)+'" onchange="msUpd('+mi+',\'sb\',+this.value)"><input style="width:110px;font-size:12px" value="'+esc(m.tb)+'" onchange="msUpd('+mi+',\'tb\',this.value)"><button class="o" style="color:#b91c1c;font-size:10px" onclick="msDel('+mi+')">Suppr.</button></div>';});}
+   else{e.ms.forEach(function(m){h+='<div style="border-bottom:1px solid var(--line);font-size:13px;padding:4px 0">'+esc(m.di)+' : <b>'+esc(m.ta)+'</b> '+m.sa+' - '+m.sb+' <b>'+esc(m.tb)+'</b></div>';});}
+  }else{h+='<div style="font-size:12px;color:#94a3b8">Aucun match archive pour cette edition.</div>';}
+  if(orga){h+='<button class="o" style="font-size:11px;margin-top:6px" onclick="msAdd()">+ Ajouter un match</button>';}
+  h+='<div class="h" style="margin-top:12px">RESULTATS (CLASSEMENT)</div>';
+  if(orga&&e.pr&&e.pr.length===0){h+='<div style="font-size:11px;color:#b91c1c;margin-bottom:4px">Edition sans donnees : complete ou supprime.</div>';}
+  if(orga){e.rs.forEach(function(r,ri){
+    h+='<div class="row" style="border-bottom:1px solid var(--line);padding:3px 0"><input style="width:130px;font-size:12px" value="'+esc(r.t)+'" onchange="rsUpd('+ri+',\'t\',this.value)"> <input type="number" style="width:44px;font-size:12px" value="'+(r.w||0)+'" onchange="rsUpd('+ri+',\'w\',+this.value)" title="victoires"> <input type="number" style="width:44px;font-size:12px" value="'+(r.l||0)+'" onchange="rsUpd('+ri+',\'l\',+this.value)" title="defaites"> <input type="number" style="width:44px;font-size:12px" value="'+(r.p||0)+'" onchange="rsUpd('+ri+',\'p\',+this.value)" title="points"><button class="o" style="color:#b91c1c;font-size:10px" onclick="rsDel('+ri+')">Suppr.</button></div>';});
+   h+='<button class="o" style="font-size:11px;margin-top:6px" onclick="rsAdd()">+ Ajouter une ligne de classement</button>';}
+  else{e.rs.forEach(function(r,i){h+='<div class="row" style="justify-content:space-between;font-size:13px;padding:3px 0">'+(i+1)+'. <b>'+esc(r.t)+'</b><span style="color:#94a3b8;font-size:11px">'+r.w+'V-'+r.l+'D</span><b>'+r.p+' pts</b></div>';});}
   h+='</div>';
   if(orga){h+='<div class="row" style="margin-top:10px"><button class="o" onclick="editEdition(\''+e.yr+'\')">Modifier l\'edition</button><button class="o" style="color:#b91c1c" onclick="delEdition(\''+e.yr+'\')">Supprimer</button></div>';}
-  h+='<div class="card" style="text-align:center"><div class="h">PHOTO DE GROUPE '+e.yr+'</div><div style="aspect-ratio:16/9;border:2px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8"><span style="font-size:34px">&#128248;</span><span style="font-size:12px">'+e.pr.length+' WEPiens a '+esc(e.pl)+'</span><span style="font-size:10px">Photo du groupe a integrer</span></div></div>';
+  h+='<div class="card" style="text-align:center"><div class="h">PHOTO DE GROUPE '+e.yr+'</div>';
+  if(e.img){h+='<img src="'+e.img+'" style="width:100%;border-radius:12px">';}
+  else{h+='<div style="aspect-ratio:16/9;border:2px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8"><span style="font-size:34px">&#128248;</span><span style="font-size:12px">'+e.pr.length+' WEPiens a '+esc(e.pl)+'</span><span style="font-size:10px">Photo du groupe a integrer</span></div>';}
+  if(orga){h+='<input type="file" accept="image/*" style="font-size:11px;margin-top:8px" onchange="edPhotoPick(this,'+e.yr+')">'+(e.img?'<button class="o" style="color:#b91c1c;font-size:11px;margin-top:4px" onclick="setEd(\'img\',null);render()">Retirer la photo</button>':'');}
+  h+='</div>';
  }
  h+='<div class="card"><div class="h">BILAN GLOBAL</div>';
  S.people.forEach(function(p){h+='<div class="row" style="justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid var(--line)"><span>'+esc(p.fn+' '+p.ln)+'</span><span style="color:#64748b">'+p.yrs.length+' editions</span></div>';});
@@ -389,11 +417,39 @@ function saveEdition(){var yr=(document.getElementById('neyr').value||'').trim()
  window.newEd=false;window.editYr=null;window.edDraft=null;ed=yr;save();render();}
 function delEdition(yr){if(!confirm('Supprimer l\'edition '+yr+' des archives ?'))return;
  S.past=S.past.filter(function(e){return e.yr!==yr;});if(ed===yr)ed=YEAR;save();render();}
+function edObj(){var e=null;S.past.forEach(function(x){if(x.yr===ed)e=x;});return e;}
+function setEd(f,v){var e=edObj();if(e){e[f]=v;save();}}
+function setEdYr(v){var e=edObj();v=(v||'').trim();if(!e||!v)return;
+ if(S.past.some(function(x){return x.yr===v&&x!==e;})){alert('Une edition '+v+' existe deja.');return;}
+ e.yr=v;ed=v;save();render();}
+function togPr(pid){var e=edObj();if(!e)return;var i=e.pr.indexOf(pid);if(i>=0)e.pr.splice(i,1);else e.pr.push(pid);save();render();}
+function togTm(ti,pid){var e=edObj();if(!e||!e.tm[ti])return;var t=e.tm[ti];var i=t.mb.indexOf(pid);if(i>=0)t.mb.splice(i,1);else t.mb.push(pid);save();render();}
+function tmUpd(ti,v){var e=edObj();if(e&&e.tm[ti])e.tm[ti].nm=v;save();}
+function tmAdd(){var e=edObj();if(!e)return;e.tm.push({nm:'Nouvelle equipe',co:['#0ea5e9','#16a34a','#7c3aed','#f59e0b'][e.tm.length%4],mb:[]});save();render();}
+function tmDel(ti){var e=edObj();if(!e)return;if(!confirm('Supprimer cette equipe archivee ?'))return;e.tm.splice(ti,1);save();render();}
+function rsUpd(ri,f,v){var e=edObj();if(e&&e.rs[ri])e.rs[ri][f]=v;save();}
+function rsDel(ri){var e=edObj();if(!e)return;e.rs.splice(ri,1);save();render();}
+function rsAdd(){var e=edObj();if(!e)return;e.rs.push({t:'Equipe',w:0,l:0,p:0});save();render();}
+function msUpd(mi,f,v){var e=edObj();if(e&&e.ms&&e.ms[mi])e.ms[mi][f]=v;save();}
+function msDel(mi){var e=edObj();if(!e)return;e.ms.splice(mi,1);save();render();}
+function msAdd(){var e=edObj();if(!e)return;e.ms=e.ms||[];e.ms.push({di:'Discipline',ta:'Equipe A',tb:'Equipe B',sa:0,sb:0});save();render();}
+function edPhotoPick(inp,yr){var f=inp.files&&inp.files[0];if(!f)return;
+ var rd=new FileReader();
+ rd.onload=function(){var img=new Image();
+  img.onload=function(){var c=document.createElement('canvas');var k=Math.min(1,1000/img.width);
+   c.width=img.width*k;c.height=img.height*k;
+   c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+   var e=null;S.past.forEach(function(x){if(x.yr===yr)e=x;});
+   if(e){e.img=c.toDataURL('image/jpeg',0.85);save();render();}
+   else{alert('Edition introuvable.');}};
+  img.src=rd.result;};
+ rd.readAsDataURL(f);inp.value='';}
 function snapshotEdition(){if(!confirm('Archiver l\'edition '+YEAR+' avec les equipes et le classement actuels ? Elle apparaitra dans les archives (dates et lieu a saisir ensuite).'))return;
  var sd=stnds();
  S.past.unshift({yr:YEAR,dt:'(a saisir)',pl:'(a saisir)',pr:S.people.filter(function(p){return p.yrs.indexOf(YEAR)>=0;}).map(function(p){return p.id;}),
   tm:S.teams.map(function(t){return {nm:t.nm,co:t.co,mb:t.mb.slice()};}),
-  rs:sd.map(function(r){return {t:r.nm,p:r.pts,w:r.w,l:r.l};})});
+  rs:sd.map(function(r){return {t:r.nm,p:r.p,w:r.w,l:r.l};}),
+  ms:S.matches.filter(function(m){return m.st==='done';}).map(function(m){return {di:m.di,ta:(te(m.a)||{nm:'?'}).nm,tb:(te(m.b)||{nm:'?'}).nm,sa:m.sa||0,sb:m.sb||0};})});
  window.newEd=false;window.editYr=null;ed=YEAR;save();render();}
 
 // ---------- Projecteur plein ecran ----------

@@ -20,3 +20,14 @@ Comme wep-primes : une ressource JSON unique (type JSONBin / Supabase Storage) p
 - Spectateurs et projecteur Android : configurer la sync une fois, l'appli suit scores et actus en quasi direct.
 - Sans config de sync, l'appli reste 100% locale (localStorage), rien ne change.
 - Configuration conservee par appareil (cles `wep-syncu` / `wep-synck`), non incluse dans les donnees partagees.
+
+Edition complete des archives (v5)
+----------------------------------
+En mode organisateur, chaque edition archivee est desormais modifiable en place :
+- annee (avec anti-doublon), dates, lieu,
+- **presences** : boutons cliquables present/absent avec les **surnoms** affiches,
+- **equipes conservees** : renommage, suppression, ajout, et composition (chips par equipe),
+- **matchs joues** : discipline, equipes, scores, ajout/suppression de lignes (aussi archives automatiquement par le bouton "Archiver cette edition"),
+- **classement** : nom d'equipe, victoires, defaites, points, ajout/suppression de lignes,
+- **photo de groupe** : import depuis l'appareil (redimensionnee), affichage, retrait.
+Les spectateurs voient l'edition en lecture seule, surnoms affiches.
