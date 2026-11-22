@@ -109,6 +109,7 @@ async function pullSync(quiet){
   var r=await fetch(SYU,{cache:'no-store',headers:{'X-Master-Key':SYK}});
   if(!r.ok)throw new Error('HTTP '+r.status);
   var d=await r.json();
+  if(d&&d.record&&d.record.teams)d=d.record;   // format JSONBin v3
   if(d&&d.teams){
    if((d._sync||'')>(S._sync||'')){syncingIn=true;S=d;try{localStorage.setItem('wep-site',JSON.stringify(S));}catch(e){}syncingIn=false;render();}
    if(!quiet)alert((d._sync||'')>(S._sync||'')?'Donnees recuperees (plus recentes).':'Tes donnees sont deja les plus recentes.');
