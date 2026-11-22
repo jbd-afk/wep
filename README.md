@@ -31,3 +31,12 @@ En mode organisateur, chaque edition archivee est desormais modifiable en place 
 - **classement** : nom d'equipe, victoires, defaites, points, ajout/suppression de lignes,
 - **photo de groupe** : import depuis l'appareil (redimensionnee), affichage, retrait.
 Les spectateurs voient l'edition en lecture seule, surnoms affiches.
+
+Photos hebergees par URL (v6)
+-----------------------------
+Pour eviter de gonfler la ressource de sync (limite JSONBin), les photos peuvent etre hebergees elsewhere :
+- **WEPiens** : en plus du fichier, champ "ou photo par URL (https)" dans le formulaire.
+- **Photo de groupe** : en plus du fichier, champ URL dans la carte photo de chaque edition archivee.
+- L'URL doit commencer par **https://** (les pages perso Free en HTTP sont bloquées en contenu mixte depuis le site en HTTPS).
+- Recommande : depot GitHub `wep-photos` servi par Pages (`https://jbd-afk.github.io/wep-photos/`), ou n'importe quel hebergeur d'images en HTTPS.
+- Dans les donnees partagees, seule l'URL part dans le JSON (quelques octets) au lieu d'une image entiere.

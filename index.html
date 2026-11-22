@@ -311,7 +311,7 @@ function addMatch(){S.matches.push({id:Date.now(),di:document.getElementById('md
 var mSearch='';
 function vMembers(){
  var h='<div class="card"><div class="row"><input id="sq" placeholder="Rechercher (nom, prenom, alias)..." style="width:180px" value="'+esc(mSearch)+'" oninput="mSearch=this.value;render()">';
- if(orga){h+='<input id="mfn" placeholder="Prenom" style="width:90px"><input id="mmln" placeholder="Nom" style="width:100px"><input id="mal" placeholder="Alias" style="width:80px"><input id="mbd" type="date"><input type="file" accept="image/*" id="mimgf" style="font-size:11px" title="Photo du WEPien" onchange="personPick(this)"><button class="b" onclick="addPerson()" id="maddbtn">Ajouter</button><button class="o" onclick="cancelEdit()" id="mcancelbtn" style="display:none">Annuler</button>';}
+ if(orga){h+='<input id="mfn" placeholder="Prenom" style="width:90px"><input id="mmln" placeholder="Nom" style="width:100px"><input id="mal" placeholder="Alias" style="width:80px"><input id="mbd" type="date"><input type="file" accept="image/*" id="mimgf" style="font-size:11px" title="Photo du WEPien" onchange="personPick(this)"><input id="pimgu" placeholder="ou photo par URL (https)" style="width:170px;font-size:11px" title="Adresse d une photo hebergee (ex: GitHub Pages,Perso). Si les deux sont donnes, le dernier saisi prime." onchange="personUrl(this.value)"><button class="b" onclick="addPerson()" id="maddbtn">Ajouter</button><button class="o" onclick="cancelEdit()" id="mcancelbtn" style="display:none">Annuler</button>';}
  h+='</div><div style="font-size:11px;color:#94a3b8;margin-top:6px">Stats personnelles indicatives, sans classement individuel.</div></div><div class="grid">';
  var st={};
  S.matches.filter(function(m){return m.st==='done'}).forEach(function(m){
@@ -327,7 +327,8 @@ function vMembers(){
 var editId=null,editImg=null;
 function editPerson(id){var p=pe(id);if(!p)return;editId=id;editImg=p.img||null;render();
  window.scrollTo({top:0,behavior:'smooth'});}
-function cancelEdit(){editId=null;editImg=null;var mf=document.getElementById('mimgf');if(mf)mf.value='';render();}
+function cancelEdit(){editId=null;editImg=null;var mf=document.getElementById('mimgf');if(mf)mf.value='';var pu=document.getElementById('pimgu');if(pu)pu.value='';render();}
+function personUrl(v){v=(v||'').trim();if(!v)return;if(v.indexOf('https://')!==0){alert('Colle une URL commencant par https:// (-pages perso Free en HTTP : non).');return;}editImg=v;}
 function personPick(input){var f=input.files[0];if(!f)return;var r=new FileReader();
  r.onload=function(){var img=new Image();img.onload=function(){var c=document.createElement('canvas');var s=Math.min(1,300/img.width);
   c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);
@@ -398,7 +399,9 @@ function vArch(){
   h+='<div class="card" style="text-align:center"><div class="h">PHOTO DE GROUPE '+e.yr+'</div>';
   if(e.img){h+='<img src="'+e.img+'" style="width:100%;border-radius:12px">';}
   else{h+='<div style="aspect-ratio:16/9;border:2px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8"><span style="font-size:34px">&#128248;</span><span style="font-size:12px">'+e.pr.length+' WEPiens a '+esc(e.pl)+'</span><span style="font-size:10px">Photo du groupe a integrer</span></div>';}
-  if(orga){h+='<input type="file" accept="image/*" style="font-size:11px;margin-top:8px" onchange="edPhotoPick(this,'+e.yr+')">'+(e.img?'<button class="o" style="color:#b91c1c;font-size:11px;margin-top:4px" onclick="setEd(\'img\',null);render()">Retirer la photo</button>':'');}
+  if(orga){h+='<input type="file" accept="image/*" style="font-size:11px;margin-top:8px" onchange="edPhotoPick(this,'+e.yr+')">'
+   +'<div class="row" style="margin-top:6px"><input style="flex:1;font-size:11px" placeholder="ou photo par URL (https://...)" value="'+esc(e.img&&e.img.indexOf('data:')!==0?e.img:'')+'" onchange="setEd(\'img\',this.value.trim()||null);render()"></div>'
+   +(e.img?'<button class="o" style="color:#b91c1c;font-size:11px;margin-top:4px" onclick="setEd(\'img\',null);render()">Retirer la photo</button>':'');}
   h+='</div>';
  }
  h+='<div class="card"><div class="h">BILAN GLOBAL</div>';
@@ -543,7 +546,8 @@ function render(){var app=document.getElementById('app');if(!app)return;syncBadg
   if(acbtn)acbtn.style.display=editId?'':'none';
   if(editId){var ep=pe(editId);
    if(ep){document.getElementById('mfn').value=ep.fn;document.getElementById('mmln').value=ep.ln;
-    document.getElementById('mal').value=ep.al||'';document.getElementById('mbd').value=ep.bd||'';}}}
+    document.getElementById('mal').value=ep.al||'';document.getElementById('mbd').value=ep.bd||'';
+    var pu=document.getElementById('pimgu');if(pu)pu.value=(ep.img&&ep.img.indexOf('data:')!==0)?ep.img:'';}}}
  if(tab==='scoreboard'){fillScoreLive();fillScoreStatics();}
 }
 function delPerson(id){if(!confirm('Supprimer ce WEPien ? Il sera retire des equipes et des matchs.'))return;
