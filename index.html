@@ -42,7 +42,7 @@ input:disabled,select:disabled,button:disabled{background:#f1f5f9;color:#94a3b8;
 <body>
 <header>
   <div><h1>WEP &#127936;</h1><p id="sub">Le week-end annuel &middot; souvenirs &amp; live</p></div>
-  <div class="row"><button class="o" id="modeBtn"></button></div>
+  <div class="row"><button class="o" id="resetBtn" title="Reinitialiser les donnees de cet appareil">↺ Réinit.</button><button class="o" id="modeBtn"></button></div>
 </header>
 <nav id="nav"></nav>
 <main id="app"></main>
@@ -197,7 +197,7 @@ function vNews(){
  var h='';
  if(orga){h+='<div class="card"><textarea id="ndraft" rows="2" placeholder="Une actu, une annonce, un souvenir..."></textarea><div style="margin-top:8px"><button class="b" onclick="postNews()">Publier</button></div></div>';}
  S.news.forEach(function(n){
-  h+='<div class="card" style="'+(n.pin?'border:2px solid var(--dark)':'')+'"><div class="row"><b style="font-size:13px">'+esc(n.au)+'</b><span style="font-size:11px;color:#94a3b8">'+esc(n.dt)+'</span>'+(n.pin?'<span class="badge b-done">Annonce</span>':'')+'</div>';
+  h+='<div class="card" style="'+(n.pin?'border:2px solid var(--dark)':'')+'"><div class="row"><b style="font-size:13px">'+esc(n.au)+'</b><span style="font-size:11px;color:#94a3b8">'+esc(n.dt)+'</span>'+(n.pin?'<span class="badge b-done">Annonce</span>':'')+(orga?'<button class="o" style="font-size:10px;margin-left:auto;color:#b91c1c" onclick="delNews('+n.id+')">Supprimer</button>':'')+'</div>';
   h+='<div style="font-size:13px;margin-top:6px">'+esc(n.tx)+'</div>';
   h+='<div class="row" style="margin-top:8px">';
   [['F','&#128293;'],['P','&#128077;'],['B','&#127936;'],['H','&#128514;']].forEach(function(e){
@@ -222,7 +222,7 @@ function vLive(){
  S.teams.forEach(function(t){h+='<div class="card" style="margin:0"><b>'+tp(t)+'</b><div class="row" style="margin-top:8px">';
   S.people.forEach(function(p){var on=t.mb.indexOf(p.id)>=0;
    h+='<button class="o" style="font-size:11px;border-radius:999px'+(on?';background:'+t.co+';color:#fff;border-color:'+t.co:'')+'" '+(orga?'':'disabled')+' onclick="togmb('+t.id+','+p.id+')">'+esc(pal(p))+'</button>';});
-  h+='</div></div>';});
+  h+='</div>'+(orga?'<button class="o" style="font-size:10px;margin-top:8px;color:#b91c1c" onclick="delTeam('+t.id+')">Supprimer l\'equipe</button>':'')+'</div>';});
  h+='</div></div>';
  h+='<div class="card"><div class="h">MATCHS, CALENDRIER &amp; JOUEURS</div>';
  if(orga){h+='<div class="row"><input id="mdi" value="Basket 3x3" style="width:120px"><input id="mtm" placeholder="Sam 15h30" style="width:100px"><select id="ma">';
@@ -242,6 +242,7 @@ function vLive(){
   if(orga){h+='<div class="row" style="margin-top:8px"><button class="o" onclick="bump('+m.id+',\'a\',1)">+ A</button><button class="o" onclick="bump('+m.id+',\'a\',-1)">- A</button><button class="o" onclick="bump('+m.id+',\'b\',1)">+ B</button><button class="o" onclick="bump('+m.id+',\'b\',-1)">- B</button>';
    if(m.st==='soon')h+='<button class="b" onclick="setst('+m.id+',\'live\')">Demarrer</button>';
    if(m.st!=='done')h+='<button class="b" onclick="setst('+m.id+',\'done\')">Terminer</button>';
+   h+='<button class="o" style="color:#b91c1c" onclick="delMatch('+m.id+')">Supprimer</button>';
    h+='</div>';}
   h+='</div>';});
  return h;
@@ -270,7 +271,7 @@ function vMembers(){
  var q=mSearch.toLowerCase();
  S.people.filter(function(p){return (p.fn+' '+p.ln+' '+p.al).toLowerCase().indexOf(q)>=0;}).forEach(function(p){
   var s=st[p.id]||{p:0,w:0};
-  h+='<div class="pers"><div class="avatar" style="background:'+p.co+'">'+esc((p.fn[0]+p.ln[0]).toUpperCase())+'</div><b style="font-size:13px">'+esc(p.fn+' '+p.ln)+'</b><div style="font-size:11px;color:#64748b">&laquo; '+esc(p.al) +' &raquo;</div><div style="font-size:10px;color:#94a3b8">'+p.yrs.length+' editions &middot; '+s.p+' matchs &middot; '+s.w+' victoires</div></div>';});
+  h+='<div class="pers"><div class="avatar" style="background:'+p.co+'">'+esc((p.fn[0]+p.ln[0]).toUpperCase())+'</div><b style="font-size:13px">'+esc(p.fn+' '+p.ln)+'</b><div style="font-size:11px;color:#64748b">&laquo; '+esc(p.al) +' &raquo;</div><div style="font-size:10px;color:#94a3b8">'+p.yrs.length+' editions &middot; '+s.p+' matchs &middot; '+s.w+' victoires</div>'+(orga?'<button class="o" style="font-size:10px;margin-top:6px;color:#b91c1c" onclick="delPerson('+p.id+')">Supprimer</button>':'')+'</div>';});
  h+='</div>';return h;
 }
 function addPerson(){var fn=document.getElementById('mfn').value.trim(),ln=document.getElementById('mmln').value.trim();
@@ -392,9 +393,24 @@ function render(){var app=document.getElementById('app');if(!app)return;
  app.innerHTML=h;
  var mb=document.getElementById('modeBtn');
  if(mb)mb.textContent=orga?'Mode organisateur OK':'Mode spectateur';
+ var rb=document.getElementById('resetBtn');if(rb)rb.style.display=orga?'':'none';
  if(tab==='scoreboard'){fillScoreLive();fillScoreStatics();}
 }
+function delPerson(id){if(!confirm('Supprimer ce WEPien ? Il sera retire des equipes et des matchs.'))return;
+ S.people=S.people.filter(function(p){return p.id!==id;});
+ S.teams.forEach(function(t){t.mb=t.mb.filter(function(i){return i!==id;});});
+ S.matches.forEach(function(m){m.pa=m.pa.filter(function(i){return i!==id;});m.pb=m.pb.filter(function(i){return i!==id;});});
+ save();render();}
+function delTeam(id){if(!confirm('Supprimer cette equipe ? Ses matchs seront aussi supprimes.'))return;
+ S.teams=S.teams.filter(function(t){return t.id!==id;});
+ S.matches=S.matches.filter(function(m){return m.a!==id&&m.b!==id;});
+ save();render();}
+function delMatch(id){if(!confirm('Supprimer ce match ?'))return;
+ S.matches=S.matches.filter(function(m){return m.id!==id;});save();render();}
+function delNews(id){if(!confirm('Supprimer cette publication ?'))return;
+ S.news=S.news.filter(function(n){return n.id!==id;});save();render();}
 document.getElementById('modeBtn').onclick=function(){orga=!orga;render();};
+document.getElementById('resetBtn').onclick=function(){if(confirm('Reinitialiser toutes les donnees de cet appareil et revenir aux donnees par defaut du code ?')){localStorage.removeItem('wep-site');location.reload();}};
 var savedTab=sessionStorage.getItem('wep-tab');
 if(savedTab){tab=savedTab;sessionStorage.removeItem('wep-tab');}
 nav();render();
