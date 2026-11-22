@@ -84,7 +84,49 @@ var qs=(location.search||'').replace('?','').split('&'),i;
 var orga=false;
 for(i=0;i<qs.length;i++){if(qs[i]==='orga='+ORGA_CODE)orga=true;}
 var orgaLink=location.href.split('?')[0].split('#')[0]+'?orga='+ORGA_CODE;
-function save(){localStorage.setItem('wep-site',JSON.stringify(S));}
+function save(){localStorage.setItem('wep-site',JSON.stringify(S));schPush();}
+var SYU=localStorage.getItem('wep-syncu')||'',SYK=localStorage.getItem('wep-synck')||'';
+var pushT=null,syncing=false,syncingIn=false;
+function syncOk(){return !!(SYU&&SYK);}
+function schPush(){if(!syncOk()||syncingIn)return;clearTimeout(pushT);pushT=setTimeout(function(){pushSync(true);},4000);}
+function syncBadge(){var e=document.getElementById('syncLit');if(e)e.innerHTML=syncOk()?(S._sync?'&#9989; Derniere sync : '+new Date(S._sync).toLocaleString('fr-FR'):'&#128257; Sync configuree, pas encore partagee'):'&#9888; Sync non configuree : donnees locales a cet appareil';}
+async function pushSync(quiet){
+ if(!syncOk()){if(!quiet)alert('Renseigne l\'URL et la cle de sync dans le Fil WEP.');return;}
+ if(syncing)return;
+ syncing=true;
+ S._sync=new Date().toISOString();
+ syncingIn=true;try{localStorage.setItem('wep-site',JSON.stringify(S));}catch(e){}syncingIn=false;
+ try{
+  var r=await fetch(SYU,{method:'PUT',headers:{'Content-Type':'application/json','X-Master-Key':SYK},body:JSON.stringify(S)});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  if(!quiet)alert('Donnees partagees.');
+ }catch(e){if(!quiet)alert('Sync impossible : '+e.message);}
+ syncing=false;syncBadge();
+}
+async function pullSync(quiet){
+ if(!syncOk()){if(!quiet)alert('Renseigne l\'URL et la cle de sync dans le Fil WEP.');return;}
+ try{
+  var r=await fetch(SYU,{cache:'no-store',headers:{'X-Master-Key':SYK}});
+  if(!r.ok)throw new Error('HTTP '+r.status);
+  var d=await r.json();
+  if(d&&d.teams){
+   if((d._sync||'')>(S._sync||'')){syncingIn=true;S=d;try{localStorage.setItem('wep-site',JSON.stringify(S));}catch(e){}syncingIn=false;render();}
+   if(!quiet)alert((d._sync||'')>(S._sync||'')?'Donnees recuperees (plus recentes).':'Tes donnees sont deja les plus recentes.');
+  }else if(!quiet)alert('La ressource de sync ne contient pas encore de donnees WEP.');
+ }catch(e){if(!quiet)alert('Sync impossible : '+e.message);}
+ syncBadge();
+}
+async function saveSyncCfg(){
+ SYU=(document.getElementById('syu').value||'').trim();SYK=(document.getElementById('syk').value||'').trim();
+ localStorage.setItem('wep-syncu',SYU);localStorage.setItem('wep-synck',SYK);
+ syncBadge();
+ var h=document.getElementById('syncView');if(h)h.innerHTML=vSyncBox();
+ if(syncOk())pullSync(false);
+}
+function vSyncBox(){var h='<div class="card" id="syncView"><div class="h">SYNCHRONISATION</div>';
+ if(orga){h+='<div style="font-size:12px;margin-bottom:6px">URL de sync (GET+PUT JSON type JSONBin/Supabase) et cle (en-tete X-Master-Key) :</div><input id="syu" placeholder="URL de sync" style="width:100%;margin-bottom:4px" value="'+esc(SYU)+'"><input id="syk" type="password" placeholder="Cle" style="width:100%;margin-bottom:6px" value="'+esc(SYK)+'"><button class="b" onclick="saveSyncCfg()">Enregistrer la config</button>';}
+ h+='<div class="row" style="margin-top:8px"><button class="o" onclick="pullSync(false)">&#11015; Recuperer</button><button class="o" onclick="pushSync(false)">&#11014; Partager</button></div><span id="syncLit" style="font-size:11px;color:#64748b"></span></div>';
+ return h;}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
 function pe(id){for(var i=0;i<S.people.length;i++){if(S.people[i].id===id)return S.people[i];}return null;}
 function te(id){for(var i=0;i<S.teams.length;i++){if(S.teams[i].id===id)return S.teams[i];}return null;}
@@ -200,6 +242,7 @@ function vHome(){
 // ---------- Fil WEP ----------
 function vNews(){
  var h='';
+ h+=vSyncBox();
  if(orga){h+='<div class="card" style="background:#fffbeb;border-color:#fde68a"><div class="h">LIENS A PARTAGER</div><div style="font-size:12px"><b>Consultation (WEPiens) :</b> spectateur, tout le monde peut lire, commenter, reagir et demarrer un match.<br><span style="word-break:break-all">'+esc(location.href.split('?')[0].split('#')[0])+'</span></div><div style="font-size:12px;margin-top:6px"><b>Organisateur (a garder prive) :</b> lien avec code '+esc(ORGA_CODE)+'<br><span style="word-break:break-all">'+esc(orgaLink)+'</span></div></div>';}
  if(orga){h+='<div class="card"><textarea id="ndraft" rows="2" placeholder="Une actu, une annonce, un souvenir..."></textarea><div style="margin-top:8px"><button class="b" onclick="postNews()">Publier</button></div></div>';}
  S.news.forEach(function(n){
@@ -434,7 +477,7 @@ function nav(){var n=document.getElementById('nav');var h='';
  TABS.forEach(function(t){h+='<button class="'+(tab===t[0]?'on':'')+'" onclick="go(\''+t[0]+'\')">'+t[1]+'</button>';});
  n.innerHTML=h;}
 function go(t){tab=t;nav();render();}
-function render(){var app=document.getElementById('app');if(!app)return;
+function render(){var app=document.getElementById('app');if(!app)return;syncBadge();
  var h='';
  if(tab==='scoreboard')h=vScore();
  if(tab==='accueil')h=vHome();
@@ -478,6 +521,7 @@ function logoDel(){localStorage.removeItem('wep-logo');applyLogo();}
 document.getElementById('logoBtn').onclick=function(){document.getElementById('logoFile').click();};
 applyLogo();
 document.getElementById('resetBtn').onclick=function(){if(confirm('Reinitialiser toutes les donnees de cet appareil et revenir aux donnees par defaut du code ?')){localStorage.removeItem('wep-site');location.reload();}};
+ syncBadge();pullSync(true);setInterval(function(){pullSync(true);},60000);
 var savedTab=sessionStorage.getItem('wep-tab');
 if(savedTab){tab=savedTab;sessionStorage.removeItem('wep-tab');}
 nav();render();
