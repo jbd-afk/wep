@@ -41,8 +41,8 @@ input:disabled,select:disabled,button:disabled{background:#f1f5f9;color:#94a3b8;
 </head>
 <body>
 <header>
-  <div><h1>WEP &#127936;</h1><p id="sub">Le week-end annuel &middot; souvenirs &amp; live</p></div>
-  <div class="row"><button class="o" id="resetBtn" title="Reinitialiser les donnees de cet appareil">↺ Réinit.</button><button class="o" id="modeBtn"></button></div>
+  <div><h1 id="logoWrap">WEP &#127936;</h1><p id="sub">Le week-end annuel &middot; souvenirs &amp; live</p></div>
+  <div class="row"><input type="file" accept="image/*" id="logoFile" style="display:none" onchange="logoPick(this)"><button class="o" id="logoBtn" title="Changer le logo" style="display:none">&#128444; Logo</button><button class="o" id="resetBtn" title="Reinitialiser les donnees de cet appareil">↺ Réinit.</button><button class="o" id="modeBtn"></button></div>
 </header>
 <nav id="nav"></nav>
 <main id="app"></main>
@@ -78,7 +78,12 @@ var DEF={
 };
 var S=JSON.parse(localStorage.getItem('wep-site')||'null')||JSON.parse(JSON.stringify(DEF));
 var TABS=[['scoreboard','Scoreboard'],['accueil','Accueil'],['fil','Le fil WEP'],['live','Le live'],['membres','Les WEPiens'],['archives','Les archives']];
-var tab='scoreboard',orga=true,ed='2026';
+var tab='scoreboard',ed='2026';
+var ORGA_CODE='wep2026';
+var qs=(location.search||'').replace('?','').split('&'),i;
+var orga=false;
+for(i=0;i<qs.length;i++){if(qs[i]==='orga='+ORGA_CODE)orga=true;}
+var orgaLink=location.href.split('?')[0].split('#')[0]+'?orga='+ORGA_CODE;
 function save(){localStorage.setItem('wep-site',JSON.stringify(S));}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');}
 function pe(id){for(var i=0;i<S.people.length;i++){if(S.people[i].id===id)return S.people[i];}return null;}
@@ -195,6 +200,7 @@ function vHome(){
 // ---------- Fil WEP ----------
 function vNews(){
  var h='';
+ if(orga){h+='<div class="card" style="background:#fffbeb;border-color:#fde68a"><div class="h">LIENS A PARTAGER</div><div style="font-size:12px"><b>Consultation (WEPiens) :</b> spectateur, tout le monde peut lire, commenter, reagir et demarrer un match.<br><span style="word-break:break-all">'+esc(location.href.split('?')[0].split('#')[0])+'</span></div><div style="font-size:12px;margin-top:6px"><b>Organisateur (a garder prive) :</b> lien avec code '+esc(ORGA_CODE)+'<br><span style="word-break:break-all">'+esc(orgaLink)+'</span></div></div>';}
  if(orga){h+='<div class="card"><textarea id="ndraft" rows="2" placeholder="Une actu, une annonce, un souvenir..."></textarea><div style="margin-top:8px"><button class="b" onclick="postNews()">Publier</button></div></div>';}
  S.news.forEach(function(n){
   h+='<div class="card" style="'+(n.pin?'border:2px solid var(--dark)':'')+'"><div class="row"><b style="font-size:13px">'+esc(n.au)+'</b><span style="font-size:11px;color:#94a3b8">'+esc(n.dt)+'</span>'+(n.pin?'<span class="badge b-done">Annonce</span>':'')+(orga?'<button class="o" style="font-size:10px;margin-left:auto;color:#b91c1c" onclick="delNews('+n.id+')">Supprimer</button>':'')+'</div>';
@@ -236,14 +242,14 @@ function vLive(){
   ['a','b'].forEach(function(s){
    h+='<div class="row" style="justify-content:flex-start"><span style="font-size:10px;color:#94a3b8">'+esc(te(m[s]).nm)+' :</span>';
    S.people.forEach(function(p){var on=m['p'+s].indexOf(p.id)>=0;
-    h+='<button class="o" style="font-size:10px;border-radius:999px;padding:2px 7px'+(on?';background:var(--dark);color:#fff;border-color:var(--dark)':'')+'" '+(orga?'':'disabled')+' onclick="togpl('+m.id+',\''+s+'\','+p.id+')">'+esc(pal(p))+'</button>';});
+    h+='<button class="o" style="font-size:10px;border-radius:999px;padding:2px 7px'+(on?';background:var(--dark);color:#fff;border-color:var(--dark)':'')+'" onclick="togpl('+m.id+',\''+s+'\','+p.id+')">'+esc(pal(p))+'</button>';});
    h+='</div>';});
   h+='</div>';
-  if(orga){h+='<div class="row" style="margin-top:8px"><button class="o" onclick="bump('+m.id+',\'a\',1)">+ A</button><button class="o" onclick="bump('+m.id+',\'a\',-1)">- A</button><button class="o" onclick="bump('+m.id+',\'b\',1)">+ B</button><button class="o" onclick="bump('+m.id+',\'b\',-1)">- B</button>';
+  h+='<div class="row" style="margin-top:8px"><button class="o" onclick="bump('+m.id+',\'a\',1)">+ A</button><button class="o" onclick="bump('+m.id+',\'a\',-1)">- A</button><button class="o" onclick="bump('+m.id+',\'b\',1)">+ B</button><button class="o" onclick="bump('+m.id+',\'b\',-1)">- B</button>';
    if(m.st==='soon')h+='<button class="b" onclick="setst('+m.id+',\'live\')">Demarrer</button>';
    if(m.st!=='done')h+='<button class="b" onclick="setst('+m.id+',\'done\')">Terminer</button>';
-   h+='<button class="o" style="color:#b91c1c" onclick="delMatch('+m.id+')">Supprimer</button>';
-   h+='</div>';}
+   h+=(orga?'<button class="o" style="color:#b91c1c" onclick="delMatch('+m.id+')">Supprimer</button>':'');
+   h+='</div>';
   h+='</div>';});
  return h;
 }
@@ -261,7 +267,7 @@ function addMatch(){S.matches.push({id:Date.now(),di:document.getElementById('md
 var mSearch='';
 function vMembers(){
  var h='<div class="card"><div class="row"><input id="sq" placeholder="Rechercher (nom, prenom, alias)..." style="width:180px" value="'+esc(mSearch)+'" oninput="mSearch=this.value;render()">';
- if(orga){h+='<input id="mfn" placeholder="Prenom" style="width:90px"><input id="mmln" placeholder="Nom" style="width:100px"><input id="mal" placeholder="Alias" style="width:80px"><input id="mbd" type="date"><button class="b" onclick="addPerson()">Ajouter</button>';}
+ if(orga){h+='<input id="mfn" placeholder="Prenom" style="width:90px"><input id="mmln" placeholder="Nom" style="width:100px"><input id="mal" placeholder="Alias" style="width:80px"><input id="mbd" type="date"><input type="file" accept="image/*" id="mimgf" style="font-size:11px" title="Photo du WEPien" onchange="personPick(this)"><button class="b" onclick="addPerson()" id="maddbtn">Ajouter</button><button class="o" onclick="cancelEdit()" id="mcancelbtn" style="display:none">Annuler</button>';}
  h+='</div><div style="font-size:11px;color:#94a3b8;margin-top:6px">Stats personnelles indicatives, sans classement individuel.</div></div><div class="grid">';
  var st={};
  S.matches.filter(function(m){return m.st==='done'}).forEach(function(m){
@@ -271,17 +277,42 @@ function vMembers(){
  var q=mSearch.toLowerCase();
  S.people.filter(function(p){return (p.fn+' '+p.ln+' '+p.al).toLowerCase().indexOf(q)>=0;}).forEach(function(p){
   var s=st[p.id]||{p:0,w:0};
-  h+='<div class="pers"><div class="avatar" style="background:'+p.co+'">'+esc((p.fn[0]+p.ln[0]).toUpperCase())+'</div><b style="font-size:13px">'+esc(p.fn+' '+p.ln)+'</b><div style="font-size:11px;color:#64748b">&laquo; '+esc(p.al) +' &raquo;</div><div style="font-size:10px;color:#94a3b8">'+p.yrs.length+' editions &middot; '+s.p+' matchs &middot; '+s.w+' victoires</div>'+(orga?'<button class="o" style="font-size:10px;margin-top:6px;color:#b91c1c" onclick="delPerson('+p.id+')">Supprimer</button>':'')+'</div>';});
+  h+='<div class="pers"><div class="avatar" style="background:'+p.co+';'+(p.img?'background-image:url('+p.img+');background-size:cover;background-position:center;':'')+'">'+(p.img?'':esc((p.fn[0]+p.ln[0]).toUpperCase()))+'</div><b style="font-size:13px">'+esc(p.fn+' '+p.ln)+'</b><div style="font-size:11px;color:#64748b">&laquo; '+esc(p.al) +' &raquo;</div><div style="font-size:10px;color:#94a3b8">'+p.yrs.length+' editions &middot; '+s.p+' matchs &middot; '+s.w+' victoires</div>'+(orga?'<button class="o" style="font-size:10px;margin-top:6px" onclick="editPerson('+p.id+')">Modifier</button><button class="o" style="font-size:10px;margin-top:6px;color:#b91c1c" onclick="delPerson('+p.id+')">Supprimer</button>':'')+'</div>';});
  h+='</div>';return h;
 }
+var editId=null,editImg=null;
+function editPerson(id){var p=pe(id);if(!p)return;
+ editId=id;editImg=p.img||null;
+ document.getElementById('mfn').value=p.fn;
+ document.getElementById('mmln').value=p.ln;
+ document.getElementById('mal').value=p.al;
+ document.getElementById('mbd').value=p.bd||'';
+ render();}
+function cancelEdit(){editId=null;editImg=null;
+ document.getElementById('mfn').value='';document.getElementById('mmln').value='';
+ document.getElementById('mal').value='';document.getElementById('mbd').value='';
+ document.getElementById('mimgf').value='';
+ render();}
+function personPick(input){var f=input.files[0];if(!f)return;var r=new FileReader();
+ r.onload=function(){var img=new Image();img.onload=function(){var c=document.createElement('canvas');var s=Math.min(1,300/img.width);
+  c.width=img.width*s;c.height=img.height*s;c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  editImg=c.toDataURL('image/jpeg',0.8);};img.src=r.result;};r.readAsDataURL(f);}
 function addPerson(){var fn=document.getElementById('mfn').value.trim(),ln=document.getElementById('mmln').value.trim();
  if(!fn||!ln)return;
- S.people.push({id:Date.now(),fn:fn,ln:ln,al:document.getElementById('mal').value.trim()||fn,
- bd:document.getElementById('mbd').value||null,co:'#64748b',tr:[],yrs:[YEAR]});save();render();}
+ var imgPending=editImg;
+ if(editId){S.people.forEach(function(p){if(p.id!==editId)return;
+  p.fn=fn;p.ln=ln;p.al=document.getElementById('mal').value.trim()||fn;p.bd=document.getElementById('mbd').value||null;
+  p.img=imgPending;});}
+ else{S.people.push({id:Date.now(),fn:fn,ln:ln,al:document.getElementById('mal').value.trim()||fn,
+ bd:document.getElementById('mbd').value||null,co:'#64748b',tr:[],yrs:[YEAR],img:imgPending});}
+ editId=null;editImg=null;save();render();}
 
 // ---------- Archives ----------
 function vArch(){
- var h='<div class="row">';
+ var h='';
+ if(orga&&window.newEd){h+='<div class="card" style="border:2px solid var(--dark)"><div class="h">EDITION (SAISIE)</div><div class="row"><input id="neyr" placeholder="Annee" style="width:80px" value="'+esc(window.edDraft&&window.edDraft.yr||'')+'"><input id="nedt" placeholder="Dates (ex: 12-14 juin 2026)" style="width:220px" value="'+esc(window.edDraft&&window.edDraft.dt||'')+'"><input id="nepl" placeholder="Lieu" style="width:220px" value="'+esc(window.edDraft&&window.edDraft.pl||'')+'"></div><div class="row" style="margin-top:8px"><button class="b" onclick="saveEdition()">Enregistrer</button><button class="o" onclick="window.newEd=false;window.editYr=null;render()">Annuler</button></div></div>';}
+ if(orga){h+='<div class="row" style="margin-bottom:10px"><button class="b" onclick="addEditionForm()">+ Nouvelle edition (archives)</button></div>';}
+ h+='<div class="row">';
  [YEAR].concat(S.past.map(function(e){return e.yr;})).forEach(function(y){
   h+='<button class="o" style="border-radius:999px'+(ed===y?';background:var(--dark);color:#fff;border-color:var(--dark)':'')+'" onclick="ed=\''+y+'\';render()">'+y+'</button>';});
  h+='</div>';
@@ -293,6 +324,7 @@ function vArch(){
   h+='<div class="h" style="margin-top:12px">CLASSEMENT EN DIRECT</div>';
   sd.forEach(function(r,i){h+='<div class="row" style="justify-content:space-between;font-size:13px;padding:3px 0">'+(i+1)+'. <span class="team"><span class="dot" style="background:'+r.co+'"></span>'+esc(r.nm)+'</span><span style="color:#94a3b8;font-size:11px">'+r.w+'V-'+r.l+'D</span><b>'+r.p+' pts</b></div>';});
   h+='</div>';
+  if(orga){h+='<div class="row" style="margin-top:10px"><button class="b" onclick="snapshotEdition()">Archiver cette edition (equipes + classement du moment)</button></div>';}
  }else{
   var e=null;S.past.forEach(function(x){if(x.yr===ed)e=x;});
   h+='<div class="card"><div class="h">EDITION '+e.yr+'</div><div style="font-size:13px;padding:2px 0"><b>Dates :</b> '+esc(e.dt)+'</div><div style="font-size:13px;padding:2px 0"><b>Lieu :</b> '+esc(e.pl)+'</div>';
@@ -300,14 +332,34 @@ function vArch(){
   h+='<div class="h" style="margin-top:12px">EQUIPES (composition conservee)</div>';
   e.tm.forEach(function(t){h+='<div class="row" style="justify-content:space-between;font-size:13px;padding:3px 0"><span class="team"><span class="dot" style="background:'+t.co+'"></span>'+esc(t.nm)+'</span><span style="color:#64748b;font-size:12px">'+esc(t.mb.map(function(i){var p=pe(i);return p?pal(p):'?';}).join(', '))+'</span></div>';});
   h+='<div class="h" style="margin-top:12px">RESULTATS</div>';
+  if(orga&&e.pr&&e.pr.length===0){h+='<div style="font-size:11px;color:#b91c1c;margin-bottom:4px">Edition sans donnees : modifie-la ou supprime-la.</div>';}
   e.rs.forEach(function(r,i){h+='<div class="row" style="justify-content:space-between;font-size:13px;padding:3px 0">'+(i+1)+'. <b>'+esc(r.t)+'</b><span style="color:#94a3b8;font-size:11px">'+r.w+'V-'+r.l+'D</span><b>'+r.p+' pts</b></div>';});
   h+='</div>';
+  if(orga){h+='<div class="row" style="margin-top:10px"><button class="o" onclick="editEdition(\''+e.yr+'\')">Modifier l\'edition</button><button class="o" style="color:#b91c1c" onclick="delEdition(\''+e.yr+'\')">Supprimer</button></div>';}
   h+='<div class="card" style="text-align:center"><div class="h">PHOTO DE GROUPE '+e.yr+'</div><div style="aspect-ratio:16/9;border:2px dashed var(--line);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#94a3b8"><span style="font-size:34px">&#128248;</span><span style="font-size:12px">'+e.pr.length+' WEPiens a '+esc(e.pl)+'</span><span style="font-size:10px">Photo du groupe a integrer</span></div></div>';
  }
  h+='<div class="card"><div class="h">BILAN GLOBAL</div>';
  S.people.forEach(function(p){h+='<div class="row" style="justify-content:space-between;font-size:13px;padding:4px 0;border-bottom:1px solid var(--line)"><span>'+esc(p.fn+' '+p.ln)+'</span><span style="color:#64748b">'+p.yrs.length+' editions</span></div>';});
  h+='</div>';return h;
 }
+
+// ---------- CRUD editions ----------
+function addEditionForm(){window.edDraft=null;window.editYr=null;window.newEd=true;render();}
+function editEdition(yr){var e=null;S.past.forEach(function(x){if(x.yr===yr)e=x;});
+ window.edDraft={yr:e.yr,dt:e.dt,pl:e.pl};window.editYr=yr;window.newEd=true;render();}
+function saveEdition(){var yr=(document.getElementById('neyr').value||'').trim();
+ if(!yr)return;var dt=(document.getElementById('nedt').value||'').trim(),pl=(document.getElementById('nepl').value||'').trim();
+ if(window.editYr){S.past.forEach(function(x){if(x.yr===window.editYr){x.yr=yr;x.dt=dt;x.pl=pl;}});}
+ else{S.past.push({yr:yr,dt:dt,pl:pl,pr:[],tm:[],rs:[]});}
+ window.newEd=false;window.editYr=null;window.edDraft=null;ed=yr;save();render();}
+function delEdition(yr){if(!confirm('Supprimer l\'edition '+yr+' des archives ?'))return;
+ S.past=S.past.filter(function(e){return e.yr!==yr;});if(ed===yr)ed=YEAR;save();render();}
+function snapshotEdition(){if(!confirm('Archiver l\'edition '+YEAR+' avec les equipes et le classement actuels ? Elle apparaitra dans les archives (dates et lieu a saisir ensuite).'))return;
+ var sd=stnds();
+ S.past.unshift({yr:YEAR,dt:'(a saisir)',pl:'(a saisir)',pr:S.people.filter(function(p){return p.yrs.indexOf(YEAR)>=0;}).map(function(p){return p.id;}),
+  tm:S.teams.map(function(t){return {nm:t.nm,co:t.co,mb:t.mb.slice()};}),
+  rs:sd.map(function(r){return {t:r.nm,p:r.pts,w:r.w,l:r.l};})});
+ window.newEd=false;window.editYr=null;ed=YEAR;save();render();}
 
 // ---------- Projecteur plein ecran ----------
 var slide=0;
@@ -394,6 +446,10 @@ function render(){var app=document.getElementById('app');if(!app)return;
  var mb=document.getElementById('modeBtn');
  if(mb)mb.textContent=orga?'Mode organisateur OK':'Mode spectateur';
  var rb=document.getElementById('resetBtn');if(rb)rb.style.display=orga?'':'none';
+ var lb2=document.getElementById('logoBtn');if(lb2)lb2.style.display=orga?'':'none';
+ if(tab==='membres'&&orga){var abtn=document.getElementById('maddbtn'),acbtn=document.getElementById('mcancelbtn');
+  if(abtn)abtn.textContent=editId?'Enregistrer':'Ajouter';
+  if(acbtn)acbtn.style.display=editId?'':'none';}
  if(tab==='scoreboard'){fillScoreLive();fillScoreStatics();}
 }
 function delPerson(id){if(!confirm('Supprimer ce WEPien ? Il sera retire des equipes et des matchs.'))return;
@@ -409,7 +465,18 @@ function delMatch(id){if(!confirm('Supprimer ce match ?'))return;
  S.matches=S.matches.filter(function(m){return m.id!==id;});save();render();}
 function delNews(id){if(!confirm('Supprimer cette publication ?'))return;
  S.news=S.news.filter(function(n){return n.id!==id;});save();render();}
-document.getElementById('modeBtn').onclick=function(){orga=!orga;render();};
+document.getElementById('modeBtn').onclick=function(){alert(orga?'Tu es deja en mode organisateur (lien organisateur).':'Mode organisateur : ouvre le lien organisateur (avec le code).');};
+function applyLogo(){var l=localStorage.getItem('wep-logo');var w=document.getElementById('logoWrap');
+ if(!w)return;if(l){w.innerHTML='<img src="'+l+'" alt="WEP" style="max-height:88px;vertical-align:middle;border-radius:8px">';}
+ else{w.innerHTML='WEP &#127936;';}}
+function logoPick(input){var f=input.files[0];if(!f)return;var r=new FileReader();
+ r.onload=function(){var img=new Image();img.onload=function(){var c=document.createElement('canvas');var maxW=420,scale=Math.min(1,maxW/img.width);
+  c.width=img.width*scale;c.height=img.height*scale;c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  localStorage.setItem('wep-logo',c.toDataURL('image/png'));applyLogo();};
+  img.src=r.result;};r.readAsDataURL(f);}
+function logoDel(){localStorage.removeItem('wep-logo');applyLogo();}
+document.getElementById('logoBtn').onclick=function(){document.getElementById('logoFile').click();};
+applyLogo();
 document.getElementById('resetBtn').onclick=function(){if(confirm('Reinitialiser toutes les donnees de cet appareil et revenir aux donnees par defaut du code ?')){localStorage.removeItem('wep-site');location.reload();}};
 var savedTab=sessionStorage.getItem('wep-tab');
 if(savedTab){tab=savedTab;sessionStorage.removeItem('wep-tab');}
